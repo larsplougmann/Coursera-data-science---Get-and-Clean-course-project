@@ -1,0 +1,101 @@
+---
+title: "ReadMe for Coursera Getting and Cleaning Data course project"
+output: html_document
+---
+
+Overview of approach and rationale for responding to tasks 1 to 5 of the Getting and Cleaning Data course project.
+
+## Q1. Merge the training and test data sets to create one data set
+
+The training and test data sets derive from the same sequence of observations. The data was originally split into two data sets in order to create a standardized problem for machine learning. (The problem being: Use the training data set to teach the learning algorithm about the relationship between 561 measurements and what movements the person is performing; then use the test data set to see if your learning algorithm can correctly infer the activity.) This means that merging the two data sets creates a consistent data set, not a data set with heterogenous observations.
+
+Rows are the key to merging the data sets. Records are split across three files. For example, the first record of the training set gets information about the test person (subject) from the subject\_train file, information about which activity was performed from the y\_train file, and 561 measurements from the smart phone from the x\_train file. Row m in one file corresponds to row m in the two other files. That is why each data set is merged using cbind(). Once each dataset is merged into a table where each observation occupies a row, the training and test datasets can be merged together using rbind().
+
+As part of merging the datasets into one, my R code also assigns column names.
+
+The full data set is kept in a data frame called _complete_.
+
+## Q2. Extract only the measurements on the mean and standard deviation for each measurement. 
+
+The features.txt file contains details on what each measurement means. The 561 names in features.txt correspond to column names for the data in x_\train and x\_test.
+
+Assumption: Measurements related to mean and standard deviation are the ones with "mean()" or "std()" in their name.
+
+Based on the assumption, I search for occurrences of "mean()" or "std()" in the column names of the full data table. Those columns are indexed in a vector I call cols\_of\_interest, which in turn is used to select extract columns from the full data table. The reduced data set is stored in a data frame called _extract_.
+
+79 measurements relate to mean or standard deviation.
+
+Note: While I could have used the dplyr select function to drop columns from the dataset, I chose a simple cbind call because I know it will work with an indexed subset.
+
+## Q3. Use descriptive activity names to name the activities in the data set
+
+Activities are picked up from the y\_train and y\_test files. They are coded as 1 to 6 with the data in the file activity\_labels explainig which activity each code refers to.
+
+In my solution. I set the 1 to 6 codes as factors and substitute them with the descriptive words for activities from activity\_labels.
+
+The specific substitutions are:
+
+Activity code | Descriptive activity names
+------------- | --------------------------
+1             | WALKING
+2             | WALKING_UPSTAIRS
+3             | WALKING_DOWNSTAIRS
+4             | SITTING
+5             | STANDING
+6             | LAYING
+
+The substitution uses the _mutate_ function from the _dplyr_ package.
+
+## Q4. Label the data set with descriptive variable names
+
+The way the original data set is presented, columns are not labeled. As part of step 1, I set up variable names using the following approach:
+1. The first column (read from the subject\* files) is labeled _subject_
+2. The second column (read from the y\* files) is labeld _activity_
+3. For each of the columns representing the 561 measuremements I applied column names from the list of 561 features in the features.txt file.
+
+Thus, at this stage, the data set has already been enriched with descriptive variable names.
+
+The measurements have names such as:
+* tBodyAcc-mean()-X
+* tBodyAcc-mean()-Y
+* tBodyAcc-mean()-Z
+* tBodyAccJerkMag-std()
+* fBodyBodyAccJerkMag-meanFreq()
+* fBodyGyro-meanFreq()-X
+
+While cryptic, one assumes that those familiar with accelerometer data would be able to infer what the measurements are. Indeed, the measurement names may adhere to some kind of standard, so I am reluctant to attempt to make the names more descriptive in case doing so would make it difficult for others to work with the dataset.
+
+To address Q4, I have chosen to (1) apply the names from features.txt as column names and (2) change the names to ensure they don't contain characters that might cause trouble when used in R for plotting or making calculations. Offending characters are the hyphen and parentheses.
+
+Hyphens are replaced with underscores and parentheses are dispensed with. Thus, tBodyAcc-mean()-Z, for example, becomes tBodyAcc\_mean\_Z.
+
+Since step (1) is already complete, the code related to Q4 focuses on step (2).
+
+## Q5. Create an independent tidy dataset with the average of each variable for each activity and each subject
+
+With 30 test subjects performing 6 activities, there are a total of 180 uniuqe combinations of subject and activity.
+
+There is an average of 343 observations per subject, and an average of 57 observations per unique combination of subject and activity. The latter verified with mean(table(extract$subject,extract$activity)). Using the quantile function we see that the actual number of observations per tuplet varies from 36 to 95. There are no combinations of subject and activity with no recorded observations (no NA values then).
+
+The task is thus to isolate all observations per subject/activity combination and compute the mean for each of the 79 measurement variables.
+
+In order for the resulting dataset to be _tidy_, we must adhere to:
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table.
+
+Source: Hadley Wickam, Journal of Statistical Software, August 2014, Volume 59, Issue 10. http://www.jstatsoft.org/v59/i10/paper
+
+There are two formats that would satisfy the tidy criterion. They are known as the _wide_ form and the _long_ format. 
+
+The wide format features 81 columns: subject, activity, and 79 columns for measurements with each measurement average in its own column. The long format features an extra column showing which measurement is being averaged, so the colums in the long format are: subject, activity, measurement, average. Thus, the wide format is 180 rows x 81 columns, whereas the long format is 4 columns x 14220 rows. (14220 = 180*79)
+
+In a real world situation, presumably more would be known about how the tidy dataset would be used for further analysis, making it easier to make an informed choice between the two. In this case, the choice between the two formats is more about what can be presented nicely for review.
+
+The attached text file doesn't lend itself well to be perused as a txt file. Please download it, and use the following commands to load it into R and view it:
+
+```
+data <- read.table(file_path, header = TRUE)
+View(data)
+```
+
