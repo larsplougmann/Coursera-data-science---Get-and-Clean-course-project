@@ -54,14 +54,12 @@ _activity_ describes what the person was doing at the time of the measurements. 
 
 _activity_ is a factor with the following levels:
 
-Descriptive activity names
---------------------------
-WALKING
-WALKING_UPSTAIRS
-WALKING_DOWNSTAIRS
-SITTING
-STANDING
-LAYING
+* WALKING
+* WALKING_UPSTAIRS
+* WALKING_DOWNSTAIRS
+* SITTING
+* STANDING
+* LAYING
 
 Unit of measurement: None.
 
