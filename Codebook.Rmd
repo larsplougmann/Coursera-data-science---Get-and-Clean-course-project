@@ -7,51 +7,81 @@ output: html_document
 
 The objective is to produce a tidy data set from a study of acceloromoter readings from test subjects in motion.
 
-The provided data set has 180 observations of 30 subjects doing 6 kinds of activities. Each observation has 81 variables:
-- subject
-- activity
-- 79 measurement variables (each processed into either a mean or standard deviation of the original measurement)
-
 ##Study design and data processing
 
 ###Collection of the raw data
-Description of how the data was collected.
+The raw data was collected from accelerometers embedded within Samsung phones carried by test subjects performing a range of activities.
+
+The original data set is avaialble at http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+Each observation is a vector of 561 accelerometer data.
 
 ###Notes on the original (raw) data 
-Some additional notes (if avaialble, otherwise you can leave this section out).
+
+The data was originally split into two data sets in order to create a standardized problem for machine learning. (The problem being: Use the training data set to teach the learning algorithm about the relationship between 561 measurements and what movements the person is performing; then use the test data set to see if your learning algorithm can correctly infer the activity.) For the purposes of this exercise, the training data and the test data was combined.
 
 ##Creating the tidy datafile
 
 ###Guide to create the tidy data file
-Description on how to create the tidy data file (1. download the data, ...)/
+
+The script run_analysis.R creates the tidy data file. The script takes care of downloading the source data. The script writes the tidy data file to the local disk as tidy.txt.
 
 ###Cleaning of the data
-Short, high-level description of what the cleaning script does. [link to the readme document that describes the code in greater detail]()
 
-##Description of the variables in the tiny_data.txt file
-General description of the file including:
- - Dimensions of the dataset
- - Summary of the data
- - Variables present in the dataset
+Overview of the data cleaning process:
+1. Combine the training and test data sets
+2. Extract only the measurements that are means or standard deveation measures.
+3. Apply descriptive activity names (i.e. what the subjects are doing: walking or sitting etc)
+4. Apply descriptive variable names
+5. Reformat the data set as a long form tidy data set
+6. Output the data set in a text file called tidy.txt
 
-(you can easily use Rcode for this, just load the dataset and provide the information directly form the tidy data file)
+For more detail, please consult the ReadMe at https://github.com/larsplougmann/Coursera-data-science-Get-and-Clean-course-project/blob/master/ReadMe.Rmd.
 
-###Variable 1 (repeat this section for all variables in the dataset)
-Short description of what the variable describes.
+##Description of the variables in the tidy.txt file
+ 
+Dimensions: 4 columns, 14220 rows. The data set has a header row.
 
-Some information on the variable including:
- - Class of the variable
- - Unique values/levels of the variable
- - Unit of measurement (if no unit of measurement list this as well)
- - In case names follow some schema, describe how entries were constructed (for example time-body-gyroscope-z has 4 levels of descriptors. Describe these 4 levels). 
+###Variable: subject
 
-(you can easily use Rcode for this, just load the dataset and provide the information directly form the tidy data file)
+_subject_ records which test subject carried the phone with an accelerometer when the measurements were performed. 30 test subjects participated in the study. They are numbered from 1 to 30.
 
-####Notes on variable 1:
-If available, some additional notes on the variable not covered elsewehere. If no notes are present leave this section out.
+Unit of measurement: None.
 
-##Sources
-Sources you used if any, otherise leave out.
+###Variable: activity
 
-##Annex
-If you used any code in the codebook that had the echo=FALSE attribute post this here (make sure you set the results parameter to 'hide' as you do not want the results to show again)
+_activity_ describes what the person was doing at the time of the measurements. There are six predefined activities that the subjects were asked to carry out.
+
+_activity_ is a factor with the following levels:
+
+Descriptive activity names
+--------------------------
+WALKING
+WALKING_UPSTAIRS
+WALKING_DOWNSTAIRS
+SITTING
+STANDING
+LAYING
+
+Unit of measurement: None.
+
+###Variable: measurement
+
+_measurement_ records which accelerometer measurement was recorded. 79 different measurements were chosen for the tidy data set, all of which are either means or standard deviation measurements as indicated by the name.
+
+Unit of measurement: None.
+
+###Variable: average
+
+_average_ records the average of observations for a particular test subject, a particular activity and a particular measurement.
+
+Unit of measurement: None. The observations in the source data were normalized.
+
+##Loading the data
+
+Use the following R command to load and View the data:
+
+```
+data <- read.table(file_path, header = TRUE)
+View(data)
+```
